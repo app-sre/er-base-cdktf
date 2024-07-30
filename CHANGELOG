@@ -1,0 +1,7 @@
+# ChangeLog
+
+## 0.0.1
+
+- Base: NodeJS-18:1-81
+- CDKTF 0.20.8
+- Terraform 1.6.6
