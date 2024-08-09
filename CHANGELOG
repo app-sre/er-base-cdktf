@@ -1,7 +1,16 @@
 # ChangeLog
 
+## 0.1.0
+
+Switched to ubi-minimal to reduce the overall image size.
+
+- Base: ubi9/ubi-minimal:9.4
+- NodeJS 20
+- CDKTF 0.20.8
+- Terraform 1.6.6
+
 ## 0.0.1
 
-- Base: NodeJS-18:1-81
+- Base: ubi8/NodeJS-18:1-81
 - CDKTF 0.20.8
 - Terraform 1.6.6
