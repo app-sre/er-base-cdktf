@@ -1,12 +1,21 @@
-IMAGE=quay.io/app-sre/er-base-cdktf:0.1.0
+CONTAINER_ENGINE ?= $(shell which podman >/dev/null 2>&1 && echo podman || echo docker)
+IMAGE=quay.io/app-sre/er-base-cdktf
+TAG=$(shell cat VERSION)
 
 .PHONY: all
 all: build push
 
 .PHONY: build
 build:
-	docker build -t ${IMAGE} .
+	${CONTAINER_ENGINE} build -t ${IMAGE}:${TAG} .
 
 .PHONY: push
 push:
-	docker push ${IMAGE}
+	${CONTAINER_ENGINE} push ${IMAGE}:${TAG}
+
+.PHONY: test
+test: build
+	@echo "No tests yet. Proceed with caution!"
+
+.PHONY: deploy
+deploy: build push
