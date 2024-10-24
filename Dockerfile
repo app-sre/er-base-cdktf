@@ -27,6 +27,8 @@ ENV \
     # Activate the virtual environment
     PATH="${APP}/.venv/bin:${PATH}"
 
+COPY LICENSE /licenses/LICENSE
+
 # Install python
 RUN microdnf install -y python3.11 && \
     update-alternatives --install /usr/bin/python3 python /usr/bin/python3.11 1
