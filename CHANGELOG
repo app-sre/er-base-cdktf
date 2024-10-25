@@ -1,5 +1,14 @@
 # ChangeLog
 
+## 0.2.0
+
+- Use Konflux to build the image
+- Use [uv](https://docs.astral.sh/uv/) for Python dependency management
+- Run container as non-root user
+- Provide a standard `.venv`
+- Basic image tests
+- Add a LICENSE file
+
 ## 0.1.0
 
 Switched to ubi-minimal to reduce the overall image size.
