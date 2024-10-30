@@ -6,20 +6,14 @@ test:
 	cdktf --version
 	terraform --version
 
-	# test python setup
-	python -c 'import cdktf'
-	python3 -c 'import cdktf'
-
 	# test /tmp is empty
 	[ -z "$(shell ls -A /tmp)" ]
 
 	# test /tmp is writable
 	touch /tmp/test && rm /tmp/test
 
+	[ -f "entrypoint.sh" ]
+
 .PHONY: build
 build:
 	$(CONTAINER_ENGINE) build -t er-base-cdktf:test .
-
-.PHONY: dev-venv
-dev-venv:
-	uv venv && uv pip install -r requirements.txt
