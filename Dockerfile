@@ -1,7 +1,7 @@
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4 AS prod
 
-LABEL konflux.additional-tags="cdktf-0.20.9-tf-1.6.6-py-3.11-1"
+LABEL konflux.additional-tags="cdktf-0.20.9-tf-1.6.6-py-3.11-v0.3.0"
 
 USER 0
 

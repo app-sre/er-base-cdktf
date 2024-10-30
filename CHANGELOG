@@ -1,5 +1,13 @@
 # ChangeLog
 
+## 0.3.0
+
+- CDKTF 0.20.9
+- Don't include `uv` and a `.venv` in the image. Must be done in the ERv2 module
+- Add `entrypoint.sh`
+- Docker image tags based on CDKTF, Terraform, and Python versions
+- `cdktf-provider-sync` command to pre-download Terraform providers in a sub-image
+
 ## 0.2.0
 
 - Use Konflux to build the image
