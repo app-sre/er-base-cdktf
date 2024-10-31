@@ -1,6 +1,6 @@
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4 AS prod
-COPY --from=ghcr.io/astral-sh/uv:0.4.26@sha256:7775c60dca9cc5827c36757c32c75985244d8f31447565fa8147e2b2e11ad280 /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.4.29@sha256:ebb10c5178c7a357d80527f3371e7038561c26234e8a0bb323ea1f2ce8a694b7 /uv /bin/uv
 
 LABEL konflux.additional-tags="0.2.0"
 
