@@ -1,8 +1,7 @@
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.4 AS prod
-COPY --from=ghcr.io/astral-sh/uv:0.4.26@sha256:7775c60dca9cc5827c36757c32c75985244d8f31447565fa8147e2b2e11ad280 /uv /bin/uv
 
-LABEL konflux.additional-tags="0.2.0"
+LABEL konflux.additional-tags="cdktf-0.20.9-tf-1.6.6-py-3.11-v0.3.0"
 
 USER 0
 
@@ -12,20 +11,13 @@ ENV HOME="/home/app" \
 
 # CDKTF and Terraform versions and other related variables
 ENV TF_VERSION="1.6.6" \
-    CDKTF_VERSION="0.20.8" \
+    CDKTF_VERSION="0.20.9" \
     NODEJS_VERSION="20" \
-    JSII_RUNTIME_PACKAGE_CACHE_ROOT=/tmp/jssi-runtime-cache
-
-# Python and UV related variables
-ENV \
-    # compile bytecode for faster startup
-    UV_COMPILE_BYTECODE="true" \
-    # disable uv cache. it doesn't make sense in a container
-    UV_NO_CACHE=true \
-    # uv will run without updating the uv.lock file.
-    UV_FROZEN=true \
-    # Activate the virtual environment
-    PATH="${APP}/.venv/bin:${PATH}"
+    JSII_RUNTIME_PACKAGE_CACHE_ROOT=/tmp/jsii-runtime-cache \
+    DISABLE_VERSION_CHECK=1 \
+    CDKTF_DISABLE_PLUGIN_CACHE_ENV=1 \
+    TF_PLUGIN_CACHE_DIR=/.terraform.d/plugin-cache/ \
+    TF_PLUGIN_CACHE_MAY_BREAK_DEPENDENCY_LOCK_FILE=true
 
 COPY LICENSE /licenses/LICENSE
 
@@ -53,8 +45,12 @@ RUN curl -sfL https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_$
     mv terraform /usr/local/bin/terraform && \
     rm terraform.zip
 
+RUN mkdir -p ${TF_PLUGIN_CACHE_DIR} && chown 1001:0 ${TF_PLUGIN_CACHE_DIR}
+
 # Clean up /tmp
 RUN rm -rf /tmp && mkdir /tmp && chmod 1777 /tmp
+
+COPY cdktf-provider-sync /usr/local/bin/cdktf-provider-sync
 
 # User setup
 RUN useradd -u 1001 -g 0 -d ${HOME} -M -s /sbin/nologin -c "Default Application User" app && \
@@ -62,12 +58,8 @@ RUN useradd -u 1001 -g 0 -d ${HOME} -M -s /sbin/nologin -c "Default Application 
 USER app
 
 WORKDIR ${APP}
-
-COPY .terraformrc ${HOME}/
-
-# Create default virtual environment and install dependencies
-COPY requirements.txt ./
-RUN uv venv --python /usr/bin/python3.11 && uv pip install -r requirements.txt
+COPY entrypoint.sh ./
+ENTRYPOINT [ "bash", "entrypoint.sh" ]
 
 FROM prod AS test
 COPY Makefile ./

@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <destination-directory>"
+    exit 1
+fi
+
+if [ ! -f "cdktf.json" ]; then
+    echo "cdktf.json does not exist"
+    exit 1
+fi
+
+cdktf get --parallelism 1 --output "$1"
+
+for i in "$1"/*; do
+    if [ ! -d "$i" ]; then
+        continue
+    fi
+    dest=$1/cdktf_cdktf_provider_$(basename "$i")
+    echo "Moving $i to $dest"
+    mv "$i" "$dest"
+done
