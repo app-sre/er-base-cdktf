@@ -29,7 +29,7 @@ spec:
     value: prod
   - name: build-platforms
     value:
-    - linux/amd64
+    - linux/x86_64
   pipelineRef:
     resolver: git
     params:
