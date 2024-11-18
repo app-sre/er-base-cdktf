@@ -53,6 +53,9 @@ if [[ $ACTION == "Apply" ]]; then
         # cdktf apply isn't reliable for now, using terraform apply instead
         $TERRAFORM_CMD apply -auto-approve
         $TERRAFORM_CMD output -json > "$OUTPUT_FILE"
+        if [ -f "post_checks.py" ]; then
+            python3 post_checks.py "$OUTPUT_FILE"
+        fi
     fi
 elif [[ $ACTION == "Destroy" ]]; then
     if [[ $DRY_RUN == "True" ]]; then
