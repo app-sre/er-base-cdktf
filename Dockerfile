@@ -11,7 +11,7 @@ ENV HOME="/home/app" \
 
 # CDKTF and Terraform versions and other related variables
 ENV TF_VERSION="1.6.6" \
-    CDKTF_VERSION="0.20.9" \
+    CDKTF_VERSION="0.20.11" \
     NODEJS_VERSION="20" \
     JSII_RUNTIME_PACKAGE_CACHE_ROOT=/tmp/jsii-runtime-cache \
     DISABLE_VERSION_CHECK=1 \
