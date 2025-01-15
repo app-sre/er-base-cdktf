@@ -44,7 +44,7 @@ $TERRAFORM_CMD init
 
 if [[ $ACTION == "Apply" ]]; then
     if [[ $DRY_RUN == "True" ]]; then
-        cdktf plan --skip-synth --output "$ER_OUTDIR"
+        $TERRAFORM_CMD plan -out=plan --lock=false
         if [ -f "validate_plan.py" ]; then
             $TERRAFORM_CMD show -json "$CDKTF_OUT_DIR"/plan > "$CDKTF_OUT_DIR"/plan.json
             python3 validate_plan.py "$CDKTF_OUT_DIR"/plan.json
@@ -59,7 +59,7 @@ if [[ $ACTION == "Apply" ]]; then
     fi
 elif [[ $ACTION == "Destroy" ]]; then
     if [[ $DRY_RUN == "True" ]]; then
-        $TERRAFORM_CMD plan -destroy
+        $TERRAFORM_CMD plan -destroy --lock=false
     elif [[ $DRY_RUN == "False" ]]; then
         cdktf destroy \
             --auto-approve \
