@@ -1,5 +1,13 @@
 # ChangeLog
 
+## 0.5.0
+
+- hook scripts support
+
+## 0.4.0
+
+- CDKTF 0.20.11
+
 ## 0.3.0
 
 - CDKTF 0.20.9
