@@ -34,6 +34,10 @@ export CDKTF_LOG_LEVEL=${CDKTF_LOG_LEVEL:-"warn"}
 OUTPUT_FILE=${OUTPUT_FILE:-"/work/output.json"}
 CDKTF_OUT_DIR="$ER_OUTDIR/stacks/CDKTF"
 TERRAFORM_CMD="terraform -chdir=$CDKTF_OUT_DIR"
+LOCK="-lock=true"
+if [[ $DRY_RUN == "True" ]]; then
+    LOCK="-lock=false"
+fi
 
 function run_hook() {
     local HOOK_NAME="$1"
@@ -79,7 +83,7 @@ cdktf synth --output "$ER_OUTDIR"
 $TERRAFORM_CMD init
 
 if [[ $ACTION == "Apply" ]]; then
-    $TERRAFORM_CMD plan -out=plan --lock=false
+    $TERRAFORM_CMD plan -out=plan "$LOCK"
     $TERRAFORM_CMD show -json "$CDKTF_OUT_DIR"/plan > "$CDKTF_OUT_DIR"/plan.json
     run_hook "validate_plan" "$CDKTF_OUT_DIR"/plan.json
 
@@ -93,7 +97,7 @@ if [[ $ACTION == "Apply" ]]; then
 
 elif [[ $ACTION == "Destroy" ]]; then
     if [[ $DRY_RUN == "True" ]]; then
-        $TERRAFORM_CMD plan -out=plan -destroy --lock=false
+        $TERRAFORM_CMD plan -out=plan -destroy "$LOCK"
         $TERRAFORM_CMD show -json "$CDKTF_OUT_DIR"/plan > "$CDKTF_OUT_DIR"/plan.json
         run_hook "validate_plan" "$CDKTF_OUT_DIR"/plan.json
 
