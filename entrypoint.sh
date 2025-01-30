@@ -34,6 +34,46 @@ export CDKTF_LOG_LEVEL=${CDKTF_LOG_LEVEL:-"warn"}
 OUTPUT_FILE=${OUTPUT_FILE:-"/work/output.json"}
 CDKTF_OUT_DIR="$ER_OUTDIR/stacks/CDKTF"
 TERRAFORM_CMD="terraform -chdir=$CDKTF_OUT_DIR"
+LOCK="-lock=true"
+if [[ $DRY_RUN == "True" ]]; then
+    LOCK="-lock=false"
+fi
+
+function run_hook() {
+    local HOOK_NAME="$1"
+    shift
+    local HOOK_DIR="./hooks"
+    local HOOK_SCRIPT=""
+
+    # Possible extensions for the hook scripts
+    local EXTENSIONS=("sh" "py")
+
+    if [ ! -d "$HOOK_DIR" ]; then
+        # no hook directory
+        return 0
+    fi
+
+    # Search for a valid hook script
+    for EXT in "${EXTENSIONS[@]}"; do
+        if [ -x "${HOOK_DIR}/${HOOK_NAME}.${EXT}" ]; then
+            HOOK_SCRIPT="${HOOK_DIR}/${HOOK_NAME}.${EXT}"
+            break
+        fi
+    done
+
+    if [ -z "$HOOK_SCRIPT" ]; then
+        # no hook script
+        return 0
+    fi
+
+    # Export variables for hooks
+    export DRY_RUN
+
+    echo "Running hook: $HOOK_NAME"
+    "$HOOK_SCRIPT" "$@"
+}
+
+run_hook "pre_hook"
 
 # CDKTF init forces the provider re-download to calculate
 # Other platform provider SHAs. USing terraform to init the configuration avoids it
@@ -43,28 +83,26 @@ cdktf synth --output "$ER_OUTDIR"
 $TERRAFORM_CMD init
 
 if [[ $ACTION == "Apply" ]]; then
-    if [[ $DRY_RUN == "True" ]]; then
-        $TERRAFORM_CMD plan -out=plan --lock=false
-        if [ -f "validate_plan.py" ]; then
-            $TERRAFORM_CMD show -json "$CDKTF_OUT_DIR"/plan > "$CDKTF_OUT_DIR"/plan.json
-            python3 validate_plan.py "$CDKTF_OUT_DIR"/plan.json
-        fi
-    elif [[ $DRY_RUN == "False" ]]; then
+    $TERRAFORM_CMD plan -out=plan "$LOCK"
+    $TERRAFORM_CMD show -json "$CDKTF_OUT_DIR"/plan > "$CDKTF_OUT_DIR"/plan.json
+    run_hook "validate_plan" "$CDKTF_OUT_DIR"/plan.json
+
+    if [[ $DRY_RUN == "False" ]]; then
         # cdktf apply isn't reliable for now, using terraform apply instead
-        $TERRAFORM_CMD apply -auto-approve
+        $TERRAFORM_CMD apply -auto-approve "$CDKTF_OUT_DIR"/plan
         $TERRAFORM_CMD output -json > "$OUTPUT_FILE"
-        if [ -f "post_checks.py" ]; then
-            python3 post_checks.py "$OUTPUT_FILE"
-        fi
+        run_hook "check_output" "$OUTPUT_FILE"
     fi
+    run_hook "post_apply" "$CDKTF_OUT_DIR"/plan.json
+
 elif [[ $ACTION == "Destroy" ]]; then
     if [[ $DRY_RUN == "True" ]]; then
-        $TERRAFORM_CMD plan -out=plan -destroy --lock=false
-        if [ -f "validate_plan.py" ]; then
-            $TERRAFORM_CMD show -json "$CDKTF_OUT_DIR"/plan > "$CDKTF_OUT_DIR"/plan.json
-            python3 validate_plan.py "$CDKTF_OUT_DIR"/plan.json
-        fi
+        $TERRAFORM_CMD plan -out=plan -destroy "$LOCK"
+        $TERRAFORM_CMD show -json "$CDKTF_OUT_DIR"/plan > "$CDKTF_OUT_DIR"/plan.json
+        run_hook "validate_plan" "$CDKTF_OUT_DIR"/plan.json
+
     elif [[ $DRY_RUN == "False" ]]; then
         $TERRAFORM_CMD destroy --auto-approve
     fi
+    run_hook "post_delete"
 fi
