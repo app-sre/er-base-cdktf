@@ -5,6 +5,7 @@ test:
 	# test binaries are installed
 	cdktf --version
 	terraform --version
+	python3 --version
 
 	# test /tmp is empty
 	[ -z "$(shell ls -A /tmp)" ]

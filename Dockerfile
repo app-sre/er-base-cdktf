@@ -22,8 +22,10 @@ ENV TF_VERSION="1.6.6" \
 COPY LICENSE /licenses/LICENSE
 
 # Install python
-RUN microdnf install -y python3.11 && \
-    update-alternatives --install /usr/bin/python3 python /usr/bin/python3.11 1
+RUN microdnf install -y python3.12 && \
+    update-alternatives --install /usr/bin/python3 python /usr/bin/python3.12 1 && \
+    microdnf clean all && \
+    rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 
 # Install nodejs and other dependencies
 RUN INSTALL_PKGS="make nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which unzip" && \
