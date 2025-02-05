@@ -1,5 +1,10 @@
 # ChangeLog
 
+## 0.6.0
+
+- Python 3.12
+- `cdktf-provider-sync` downloads the Terraform providers based on the Python CDKTF packages in your `pyproject.toml`
+
 ## 0.5.0
 
 - hook scripts support
