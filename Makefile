@@ -13,6 +13,7 @@ test:
 	touch /tmp/test && rm /tmp/test
 
 	[ -f "entrypoint.sh" ]
+	[ -x "/usr/local/bin/cdktf-provider-sync" ]
 
 .PHONY: build
 build:
