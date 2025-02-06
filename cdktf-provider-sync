@@ -1,23 +1,40 @@
 #!/bin/bash
+# shellcheck disable=SC1091
+
 set -e
 
-if [ -z "$1" ]; then
-    echo "Usage: $0 <destination-directory>"
+if [ ! -f "pyproject.toml" ]; then
+    echo "pyproject.toml does not exist"
     exit 1
 fi
 
-if [ ! -f "cdktf.json" ]; then
-    echo "cdktf.json does not exist"
-    exit 1
-fi
+# activate the virtual environment
+source .venv/bin/activate
 
-cdktf get --parallelism 1 --output "$1"
+# cdktf uses pip to get the installed CDKTF provider version
+pip --version > /dev/null || (echo "pip not found. Please add it to your pyproject.toml" && exit 1)
 
-for i in "$1"/*; do
-    if [ ! -d "$i" ]; then
-        continue
-    fi
-    dest=$1/cdktf_cdktf_provider_$(basename "$i")
-    echo "Moving $i to $dest"
-    mv "$i" "$dest"
-done
+TF_TMP=$(mktemp -d)
+
+# generate terraform provider config
+cdktf provider list --json | python3 -c '
+import sys, json
+
+data = json.load(sys.stdin)
+
+providers = {
+    p["providerName"]: {"version": p["providerVersion"]}
+    for k in ["local", "prebuilt"]
+    for p in data.get(k, [])
+}
+
+result = {"terraform": {"required_providers": providers}}
+
+print(json.dumps(result, indent=2))
+' > "$TF_TMP/main.tf.json"
+
+# download all required providers to $TF_PLUGIN_CACHE_DIR
+terraform -chdir="$TF_TMP" init
+
+# cleanup
+rm -rf "$TF_TMP"

@@ -1,7 +1,7 @@
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5-1738643652@sha256:3902bab19972cd054fd08b2a4e08612ae7e68861ee5d9a5cf22d828f27e2f479 AS prod
 
-LABEL konflux.additional-tags="cdktf-0.20.11-tf-1.6.6-py-3.11-v0.5.0"
+LABEL konflux.additional-tags="cdktf-0.20.11-tf-1.6.6-py-3.12-v0.6.0"
 
 USER 0
 
@@ -22,8 +22,10 @@ ENV TF_VERSION="1.6.6" \
 COPY LICENSE /licenses/LICENSE
 
 # Install python
-RUN microdnf install -y python3.11 && \
-    update-alternatives --install /usr/bin/python3 python /usr/bin/python3.11 1
+RUN microdnf install -y python3.12 && \
+    update-alternatives --install /usr/bin/python3 python /usr/bin/python3.12 1 && \
+    microdnf clean all && \
+    rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 
 # Install nodejs and other dependencies
 RUN INSTALL_PKGS="make nodejs nodejs-nodemon nodejs-full-i18n npm findutils tar which unzip" && \

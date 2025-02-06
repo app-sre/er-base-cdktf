@@ -5,6 +5,7 @@ test:
 	# test binaries are installed
 	cdktf --version
 	terraform --version
+	python3 --version
 
 	# test /tmp is empty
 	[ -z "$(shell ls -A /tmp)" ]
@@ -13,6 +14,7 @@ test:
 	touch /tmp/test && rm /tmp/test
 
 	[ -f "entrypoint.sh" ]
+	[ -x "/usr/local/bin/cdktf-provider-sync" ]
 
 .PHONY: build
 build:
