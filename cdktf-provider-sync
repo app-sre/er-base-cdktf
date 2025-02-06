@@ -11,7 +11,7 @@ fi
 # activate the virtual environment
 source .venv/bin/activate
 
-# cdktf uses pip to get the installed CDKTF version
+# cdktf uses pip to get the installed CDKTF provider version
 pip --version > /dev/null || (echo "pip not found. Please add it to your pyproject.toml" && exit 1)
 
 TF_TMP=$(mktemp -d)
