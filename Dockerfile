@@ -1,5 +1,5 @@
 
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5-1742914212@sha256:ac61c96b93894b9169221e87718733354dd3765dd4a62b275893c7ff0d876869 AS prod
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5-1745855087@sha256:e1c4703364c5cb58f5462575dc90345bcd934ddc45e6c32f9c162f2b5617681c AS prod
 
 LABEL konflux.additional-tags="cdktf-0.20.11-tf-1.6.6-py-3.12-v0.6.0"
 
